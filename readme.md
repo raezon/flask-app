@@ -7,7 +7,7 @@ Welcome to my awesome project! This project does amazing things and you're going
 
 ## Features
 
-- simple rest api
+- simple rest api with flask
 
 
 ## Installation
