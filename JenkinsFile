@@ -8,6 +8,7 @@ pipeline {
             {
                 script {
                         echo "INFO: Build Stage"
+                         sh 'mv Dockerfile dockerfile'
                          sh 'sudo docker build -t my-awesome-project .'
                          sh 'sudo docker images ls.'
                     }
