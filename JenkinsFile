@@ -1,29 +1,56 @@
 pipeline {
     agent any
+    
+    environment {
+        TARGET_DIR = "/var/www/simple-app"
+        DOCKER_IMAGE = "my-simple-app-image"
+        CONTAINER_NAME = "simple-app-container"
+    }
+    
     stages {
-
-        stage("Build")
-        {
-            steps
-            {
-                script {
-                        echo "INFO: Build Stage"
-                         sh 'cp Dockerfile /var/snap/docker/common/var-lib-docker/tmp/buildkit-mount242752012/'
-                         sh 'sudo docker build -t my-awesome-project .'
-                         sh 'sudo docker images ls.'
-                    }
+        stage('Pull from GitHub') {
+            steps {
+                git 'https://github.com/raezon/simple-flask-applications'
             }
         }
-
-        stage("Deploy")
-        {
-            steps
-            {
+        
+        stage('Build Docker Image') {
+            steps {
                 script {
-                            echo "INFO: Deploy Stage"
-                            sh 'sudo docker rm -f my-awesome-project || true'
-                            sh 'sudo docker run --restart always -d -p 80:80 my-awesome-project'
-                    }
+                    sh "sudo docker build -t ${DOCKER_IMAGE} ${TARGET_DIR}"
+                }
+            }
+        }
+        
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh """
+                        sudo docker stop ${CONTAINER_NAME} || true
+                        sudo docker rm ${CONTAINER_NAME} || true
+                        sudo docker run -d -p 80:80 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}
+                    """
+                }
+            }
+        }
+        
+        stage('Test Application') {
+            steps {
+                script {
+                    echo "hello world"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Stop and remove the container if tests fail
+                if (currentBuild.result == 'FAILURE') {
+                    sh "sudo docker stop ${CONTAINER_NAME}"
+                    sh "sudo docker rm ${CONTAINER_NAME}"
+                }
             }
         }
     }
