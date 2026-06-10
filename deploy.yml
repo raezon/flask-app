@@ -1,0 +1,21 @@
+name: Hello World v2
+
+on:
+  push: # Au push sur n'importe quelle branche
+    branches: [ main ]
+  pull_request: # À l'ouverture d'une PR
+    branches: [ main ]
+  workflow_dispatch: # Bouton manuel dans l'UI GitHub
+
+jobs:
+  informations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Qui a déclenché ce workflow ?
+        run: echo "Déclenché par : ${{ github.actor }}"
+      - name: Sur quelle branche ?
+        run: echo "Branche : ${{ github.ref }}"
+      - name: Quel événement ?
+        run: echo "Événement : ${{ github.event_name }}"
+      - name: Numéro du run
+        run: echo "Run numéro : ${{ github.run_number }}"
